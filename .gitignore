@@ -6,3 +6,6 @@ __pycache__/
 venv/
 *.db
 .ipynb_checkpoints/
+data/chroma_store/
+data/cost_log.csv
+data/events/
