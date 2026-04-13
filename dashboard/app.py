@@ -9,9 +9,13 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.cost_tracker import get_cost_summary
 from src.rag_pipeline import get_chroma_collection, get_embedding
 
-st.set_page_config(page_title="PipelineIQ", page_icon="🔍", layout="wide")
+st.set_page_config(
+    page_title="PipelineIQ",
+    page_icon="🔍",
+    layout="wide"
+)
 
-page = st.sidebar.selectbox(
+page = st.sidebar.radio(
     "Navigate",
     ["🔴 Live Monitor", "🔍 Incident Search", "💰 Cost Monitor"]
 )
@@ -19,9 +23,6 @@ page = st.sidebar.selectbox(
 DB_PATH = "data/pipeline_events.db"
 
 
-# ══════════════════════════════════════════════════════════════
-# PAGE 1 — LIVE MONITOR
-# ══════════════════════════════════════════════════════════════
 if page == "🔴 Live Monitor":
     st.title("🔴 PipelineIQ — Live Monitor")
     st.caption("Real-time pipeline health and anomaly explanations")
@@ -55,7 +56,11 @@ if page == "🔴 Live Monitor":
         st.subheader("Recent Events")
 
         def color_severity(val):
-            colors = {"HIGH": "background-color: #ffcccc", "MEDIUM": "background-color: #fff3cc", "LOW": "background-color: #ccffcc"}
+            colors = {
+                "HIGH": "background-color: #ffcccc",
+                "MEDIUM": "background-color: #fff3cc",
+                "LOW": "background-color: #ccffcc",
+            }
             return colors.get(val, "")
 
         styled = events_df.head(20).style.map(color_severity, subset=["severity"])
@@ -85,9 +90,6 @@ if page == "🔴 Live Monitor":
     conn.close()
 
 
-# ══════════════════════════════════════════════════════════════
-# PAGE 2 — INCIDENT SEARCH
-# ══════════════════════════════════════════════════════════════
 elif page == "🔍 Incident Search":
     st.title("🔍 Incident Search")
     st.caption("Search historical incidents using natural language")
@@ -105,10 +107,17 @@ elif page == "🔍 Incident Search":
                     st.warning("No runbooks loaded yet. Run the RAG pipeline first.")
                 else:
                     query_embedding = get_embedding(query)
-                    results = collection.query(query_embeddings=[query_embedding], n_results=3)
+                    results = collection.query(
+                        query_embeddings=[query_embedding],
+                        n_results=3
+                    )
                     st.subheader("Most Similar Historical Incidents")
-                    for i, (doc, metadata) in enumerate(zip(results["documents"][0], results["metadatas"][0])):
-                        with st.expander(f"Incident {i+1} — {metadata.get('incident_type', 'Unknown')}"):
+                    for i, (doc, metadata) in enumerate(
+                        zip(results["documents"][0], results["metadatas"][0])
+                    ):
+                        with st.expander(
+                            f"Incident {i+1} — {metadata.get('incident_type', 'Unknown')}"
+                        ):
                             st.markdown(f"**Description:** {doc}")
                             st.markdown(f"**Severity:** {metadata.get('severity', 'Unknown')}")
                             st.markdown(f"**Resolution Time:** {metadata.get('resolution_time', 'Unknown')}")
@@ -116,9 +125,6 @@ elif page == "🔍 Incident Search":
                 st.error(f"Search error: {e}")
 
 
-# ══════════════════════════════════════════════════════════════
-# PAGE 3 — COST MONITOR
-# ══════════════════════════════════════════════════════════════
 elif page == "💰 Cost Monitor":
     st.title("💰 API Cost Monitor")
     st.caption("Real-time OpenAI API spend tracking")
